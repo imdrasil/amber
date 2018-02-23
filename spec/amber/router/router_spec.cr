@@ -15,10 +15,10 @@ module Amber
           router.match("GET", "/hello/2").key.should eq "get/hello/:id"
           router.match("GET", "/hello/new").key.should eq "get/hello/new"
           router.match("GET", "/hello/2/edit").key.should eq "get/hello/:id/edit"
-          router.match("PUT", "/hello/1").key.should eq "get/helloput/hello/:id"
-          router.match("PATCH", "/hello/1").key.should eq "get/hellopatch/hello/:id"
-          router.match("DELETE", "/hello/1").key.should eq "get/hellodelete/hello/:id"
-          router.match("POST", "/hello").key.should eq "get/hellopost/hello"
+          router.match("PUT", "/hello/1").key.should eq "put/hello/:id"
+          router.match("PATCH", "/hello/1").key.should eq "patch/hello/:id"
+          router.match("DELETE", "/hello/1").key.should eq "delete/hello/:id"
+          router.match("POST", "/hello").key.should eq "post/hello"
         end
 
         context "when specifying actions" do
@@ -33,8 +33,8 @@ module Amber
             router.match("GET", "/hello/2").key.should eq ""
             router.match("GET", "/hello/new").key.should eq ""
             router.match("GET", "/hello/2/edit").key.should eq ""
-            router.match("PUT", "/hello/1").key.should eq "get/helloput/hello/:id"
-            router.match("PATCH", "/hello/1").key.should eq "get/hellopatch/hello/:id"
+            router.match("PUT", "/hello/1").key.should eq "put/hello/:id"
+            router.match("PATCH", "/hello/1").key.should eq "patch/hello/:id"
             router.match("DELETE", "/hello/1").key.should eq ""
           end
 
@@ -49,9 +49,7 @@ module Amber
             router.match("GET", "/hello/2").key.should eq "get/hello/:id"
             router.match("GET", "/hello/new").key.should eq "get/hello/new"
             router.match("GET", "/hello/2/edit").key.should eq "get/hello/:id/edit"
-            router.match("PUT", "/hello/1").key.should eq "get/hello/:id"
-            router.match("PATCH", "/hello/1").key.should eq "get/hello/:id"
-            router.match("DELETE", "/hello/1").key.should eq "get/hello/delete/hello/:id"
+            router.match("DELETE", "/hello/1").key.should eq "delete/hello/:id"
           end
         end
       end
@@ -105,21 +103,7 @@ module Amber
 
           node = router.add(route)
 
-          node.class.should eq Radix::Node(Amber::Route)
-        end
-
-        it "raises Amber::Exceptions::DuplicateRouteError on duplicate" do
-          router = Router.new
-          handler = ->(context : HTTP::Server::Context) {
-            context.content = "hey world"
-          }
-          route = Route.new("GET", "/some/joe", handler)
-
-          router.add(route)
-
-          expect_raises Amber::Exceptions::DuplicateRouteError do
-            router.add(route)
-          end
+          node.class.should eq Array(Oak::Tree(Amber::Route))
         end
       end
 
@@ -171,7 +155,7 @@ module Amber
             resources "/comments", HelloController
           end
 
-          router.all.size.should eq 14
+          router.all.size.should eq 21
         end
       end
     end
